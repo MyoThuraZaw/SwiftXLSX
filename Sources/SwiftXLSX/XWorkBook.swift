@@ -624,6 +624,9 @@ final public class XWorkBook{
         var CachePath = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         
         CachePath = "\(CachePath)/tmpxls"
+        
+        self.RemoveFile(path: CachePath)
+        
         self.CheckCreateDirectory(path: CachePath)
         
         let FolderId = "folderxls\(arc4random())"
@@ -1004,7 +1007,9 @@ final public class XWorkBook{
         let filepath = "\(CachePath)/\(filename)"
         let fileManager = FileManager()
         do {
-            try fileManager.zipItem(at: URL(fileURLWithPath: BasePath), to: URL(fileURLWithPath: filepath), shouldKeepParent: false)
+            
+            try fileManager.zipItem(at: BasePath.fileUrl, to: filepath.fileUrl, shouldKeepParent: false, compressionMethod: .deflate, progress: nil)
+//            try fileManager.zipItem(at: URL(fileURLWithPath: BasePath), to: URL(fileURLWithPath: filepath), shouldKeepParent: false)
         } catch {
             print("Creation of ZIP archive failed with error:\(error)")
         }
@@ -1449,6 +1454,16 @@ extension ColorClass {
             let hexcolgen = String(format: "%02lX%02lX%02lX%02lX",ai,ri,gi,bi)
             ColorClass.hexdict[idcolor] = hexcolgen
             return hexcolgen
+        }
+    }
+}
+
+extension String {
+    var fileUrl: URL {
+        if #available(iOS 16.0, *) {
+            return URL(filePath: self)
+        } else {
+            return URL(fileURLWithPath: self)
         }
     }
 }
